@@ -1,23 +1,43 @@
 ﻿@page "/Flights"
 
 <h3>Flight Finder</h3>
-<form>
-    <label for="from">From:</label>
-    <label for="to">To:</label>
-    <label for="day">Day:</label><br />
-    <input type="text" id="from" name="from" />
-    <input type="text" id="to" name="to" />
-    <input type="text" id="day" name="day" />
-    <input type="submit" value="Find flights" />
-</form>
+<input @bind="SelectedDeparture" placeholder="Any" />
+<input @bind="SelectedArrival" placeholder="Any" />
+<input type="datetime-local" @bind="SelectedDay" />
+<input type="submit" value="Find Flights" />
 <h3>Flights</h3>
-<select name="foundflights" id="foundflights">
-    <option value="flight1">Flight 1</option>
-    <option value="flight2">Flight 2</option>
-    <option value="flight3">Flight 3</option>
+<select @bind="selectedValue" @bind:event="onchange">
+    @if (options.Count == 0 )
+    {
+        <option value="Loading...">Loading...</option>
+    }
+    else
+    {
+        @foreach (var option in options)
+        {
+            <option value="@option">@option</option>
+        }
+    }
+
 </select>
+<p>Selected Value: @selectedValue</p>
 
 @code
 {
+    public string SelectedDeparture { get; set; }
+    public string SelectedArrival { get; set; }
+    public DateTime SelectedDay = DateTime.Now;
 
+
+
+    public string Name { get; set; }
+    private DateTime selectedDate = DateTime.Now;
+    private string selectedValue;
+    private string selectedOption = "Option1";
+    private List<string> options = new List<string> { };
+
+    private void OnSelectedValueChanged(ChangeEventArgs e)
+    {
+        selectedValue = e.Value.ToString();
+    }
 }
