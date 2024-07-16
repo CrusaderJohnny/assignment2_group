@@ -1,21 +1,24 @@
 ﻿@page "/Flights"
 
 <h3>Flight Finder</h3>
+<label>From</label>
 <input @bind="SelectedDeparture" placeholder="Any" />
+<label>To</label>
 <input @bind="SelectedArrival" placeholder="Any" />
-<input type="datetime-local" @bind="SelectedDay" />
-<input type="submit" value="Find Flights" />
+<label>Day</label>
+<input @bind="SelectedDay" placeholder="Any"/>
+<input type="submit" onclick="LoadFoundFlights()" value="Find Flights" />
 <h3>Flights</h3>
 <select @bind="selectedValue" @bind:event="onchange">
-    @if (options.Count == 0 )
+    @if (foundFlights.Count == 0 )
     {
         <option value="Loading...">Loading...</option>
     }
     else
     {
-        @foreach (var option in options)
+        @foreach (var flight in foundFlights)
         {
-            <option value="@option">@option</option>
+            <option value="@foundFlights">@foundFlights</option>
         }
     }
 
@@ -24,14 +27,72 @@
 
 @code
 {
+    internal class AirFlights
+    {
+        private readonly string _flightCode;
+        private readonly string _flightName;
+        private readonly string _fromPort;
+        private readonly string _toPort;
+        private readonly string _day;
+        private readonly string _time;
+        private readonly int _someNum;
+        private readonly double _cost;
+        public AirFlights(string flightCode, string flightName, string fromPort, string toPort, string day, string time, int someNum, double cost)
+        {
+            this._flightCode = flightCode;
+            this._flightName = flightName;
+            this._fromPort = fromPort;
+            this._toPort = toPort;
+            this._day = day;
+            this._time = time;
+            this._someNum = someNum;
+            this._cost = cost;
+        }
+    }
+    private List<AirFlights> foundFlights;
+    private List<AirFlights> ReadFlights()
+    {
+        List<AirFlights> LoadedFlights = new List<AirFlights>();
+        string[] lines = File.ReadAllLines("flights.csv");
+
+        foreach (string line in lines)
+        {
+            AirFlights? flight = this.CreateFlightFromLine(line);
+
+            if (flight != null)
+            {
+                LoadedFlights.Add(flight);
+            }
+        }
+
+        return LoadedFlights;
+    }
+    private AirFlights? CreateFlightFromLine(string line)
+    {
+        string[] parts = line.Split(',');
+        if (parts.Length != 8)
+            return null;
+        string flightCode = parts[0];
+        string flightName = parts[1];
+        string fromPort = parts[2];
+        string toPort = parts[3];
+        string day = parts[4];
+        string time = parts[5];
+        int someNum = int.Parse(parts[6]);
+        double cost = double.Parse(parts[7]);
+
+        AirFlights flight = new AirFlights(flightCode, flightName, fromPort, toPort, day, time, someNum, cost);
+
+        return flight;
+    }
     public string SelectedDeparture { get; set; }
     public string SelectedArrival { get; set; }
-    public DateTime SelectedDay = DateTime.Now;
+    public string SelectedDay { get; set; }
 
 
 
     public string Name { get; set; }
-    private DateTime selectedDate = DateTime.Now;
+    private DateOnly selectedDate;
     private string selectedValue;
     private string selectedOption = "Option1";
     private List<string> options = new List<string> { };
