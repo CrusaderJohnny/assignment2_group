@@ -9,7 +9,7 @@
 <input @bind="SelectedDay" placeholder="Any"/>
 <input type="submit" onclick="LoadFoundFlights()" value="Find Flights" />
 <h3>Flights</h3>
-<select @bind="selectedValue" @bind:event="onchange">
+<select @bind="selectedFlight" @bind:event="onchange">
     @if (foundFlights.Count == 0 )
     {
         <option value="Loading...">Loading...</option>
@@ -23,8 +23,23 @@
     }
 
 </select>
-<p>Selected Value: @selectedValue</p>
-
+<h3>Reserve</h3>
+<label>Flight Code:</label>
+<input @bind="FoundFlightCode" IsReadOnly="true" />
+<label>Airline:</label>
+<input @bind="FoundFlightAirline" IsReadOnly="true" />
+<label>Day:</label>
+<input @bind="FoundFlightDay" IsReadOnly="true" />
+<label>Time:</label>
+<input @bind="FoundFlightTime" IsReadOnly="true" />
+<label>Cost:</label>
+<input @bind="FoundFlightCost" IsReadOnly="true" />
+<label>Name:</label>
+<input @bind="FoundFlightName" placeholder="Enter Name for reservation" />
+<label>Citizenship:</label>
+<input @bind="FoundFlightCitizen" placeholder="Enter Citizenship for reservation" />
+<input type="submit" onclick="ReserveFlight()" value="Reserve" />
+<p @bind="HiddenReserve"></p>
 @code
 {
     internal class AirFlights
@@ -88,17 +103,13 @@
     public string SelectedDeparture { get; set; }
     public string SelectedArrival { get; set; }
     public string SelectedDay { get; set; }
-
-
-
-    public string Name { get; set; }
-    private DateOnly selectedDate;
-    private string selectedValue;
-    private string selectedOption = "Option1";
-    private List<string> options = new List<string> { };
-
-    private void OnSelectedValueChanged(ChangeEventArgs e)
-    {
-        selectedValue = e.Value.ToString();
-    }
+    private string selectedFlight;
+    private string FoundFlightCode { get; set; }
+    private string FoundFlightAirline { get; set; }
+    private string FoundFlightDay { get; set; }
+    private string FoundFlightTime { get; set; }
+    private string FoundFlightCost { get; set; }
+    private string FoundFlightName { get; set; }
+    private string FoundFlightCitizen { get; set; }
+    private string HiddenReserve = "Reservation Code: 1234";
 }
