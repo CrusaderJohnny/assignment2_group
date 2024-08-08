@@ -1,0 +1,102 @@
+﻿@page "/flights"
+@using MauiApp2.Data
+@using Microsoft.Maui.Storage
+@using System.IO
+@using System.Text.Json
+@using Microsoft.Maui.Controls
+@inject Flights flights
+
+
+<h1>Flight Finder</h1>
+<form>
+    <label>From:</label>
+    <input placeholder="Any" @bind="selectedDeparture" />
+    <label>To:</label>
+    <input placeholder="Any" @bind="selectedArrival" />
+    <label>Day:</label>
+    <input placeholder="Any" @bind="selectedDay" />
+    <button onclick="SearchFlights">Find Flights</button>
+</form>
+<select @bind="selectedFlight" @bind:event="onchange">
+    @if (foundflights.Count == 0)
+    {
+        <option>Loading...</option>
+    }
+    else
+    {
+        @foreach (var flight in FoundFlights)
+        {
+            <option value="foundFlights">@foundflights</option>
+        }
+    }
+</select>
+
+@code {
+    string selectedDeparture;
+    string selectedArrival;
+    string selectedDay;
+    string selectedFlight;
+
+    internal List<Flights> FoundFlights = new();
+    internal List<Flights> foundflights = new ();
+    private void SearchFlights() 
+    {
+        if (!string.IsNullorWhiteSpace(selectedDeparture) || !string.IsNullorWhiteSpace(selectedArrival) || !string.IsNullorWhiteSpace(selectedDay))
+        {
+            LoadFlights();
+            List<Flights> foundFlights = new();
+            foreach (Flights flight in FoundFlights)
+            {
+                if(selectedDeparture == flight.FromAirport)
+                {
+                    foundFlights.Add(flight);
+                }
+                else if (selectedArrival == flight.ToAirport)
+                {
+                    foundFlights.Add(flight);
+                }
+                else if (selectedDay == flight.DayofWeek)
+                {
+                    foundFlights.Add(flight);
+                }
+            }
+        }
+    }
+    private List<Flights> LoadFlights()
+    {
+        List<Flights> FoundFlights = new List<Flights>();
+        try
+        {
+            using (StreamReader sr = new StreamReader("flights.csv"))
+            {
+                sr.ReadLine();
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] values = line.Split(',');
+                    // Basic error handling for incorrect number of columns
+                    if (values.Length != 8)
+                    {
+                        Console.WriteLine("Invalid data in CSV file: " + line);
+                        continue;
+                    }
+                    Flights flight = new Flights
+                    {
+                        flightID = values[0],
+                    };
+                    FoundFlights.Add(flight);
+                }
+            }
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine("File not found: flights.csv");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading CSV File: " + ex.Message);
+        }
+        return FoundFlights;
+    }
+
+}
