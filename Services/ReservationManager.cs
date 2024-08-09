@@ -12,15 +12,15 @@ namespace Traveless.Services
     {
         /* all properties associated to reservations
          */
-        private string reservation_code { get { return reservation_code; } set { reservation_code = value; } }
-        private string flight_code { get { return flight_code; } set { flight_code = value; } }
+        public string reservation_code { get { return reservation_code; } set { reservation_code = value; } }
+        public string flight_code { get { return flight_code; } set { flight_code = value; } }
         private string airline { get { return airline; } set { airline = value; } }
-        private string cost { get { return cost; } set { cost = value; } }
-        private string day { get { return day; } set { day = value; } }
-        private string time { get { return time; } set { time = value; } }
-        private string name { get { return name; } set { name = value; } }
-        private string citizenship { get { return citizenship; } set { citizenship = value; } }
-        private bool active { get { return active; } set { active = value; } }
+        public string cost { get { return cost; } set { cost = value; } }
+        public string day { get { return day; } set { day = value; } }
+        public string time { get { return time; } set { time = value; } }
+        public string name { get { return name; } set { name = value; } }
+        public string citizenship { get { return citizenship; } set { citizenship = value; } }
+        public bool active { get { return active; } set { active = value; } }
 
         internal List<ReservationManagement>? reservations = new List<ReservationManagement>();
 
