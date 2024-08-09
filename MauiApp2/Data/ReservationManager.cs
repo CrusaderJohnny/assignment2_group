@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Android.Content.Res;
+using MauiApp2.Components.Pages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -6,6 +8,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Android.Graphics.ImageDecoder;
+using static Android.Resource;
 
 /* This is the ReservationManagement class.
  * this class will hold all methods and attributes related to reservation management and creation,
@@ -28,7 +32,7 @@ namespace MauiApp2.Data
         private string citizenship { get { return citizenship; } set { citizenship = value; } }
         private bool active { get { return active; } set { active = value; } }
 
-        internal List<ReservationManagement> reservations = new List<ReservationManagement>();
+        internal List<ReservationManagement>? reservations = new List<ReservationManagement>();
 
         internal ReservationManagement(string flight_code, string airline, string cost, string day, string time, string name, string citizenship)
         {
@@ -89,23 +93,111 @@ namespace MauiApp2.Data
             }
 
         }
-        internal void WriteReservation(string reso_code)
+        
+        internal void WriteReservation(ReservationManagement reservation)
         {
+            bool alreadyTaken = false;
+            do
+            {
+                foreach(ReservationManagement rm in reservations) 
+                {
+                    if (reservation.reservation_code == rm.reservation_code)
+                    {
+                        alreadyTaken = true;
+                        reservation.CreateRC();
+                        break;
+                    }
+                }
+                alreadyTaken = false;
+            }while (alreadyTaken);
+            reservations.Add(reservation);
+
+            string filepath= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "raw", "reservations.txt");
+
+            try
+            {
+                string jsonString = JsonSerializer.Serialize(reservations);
+                File.WriteAllText(filepath, jsonString);
+                return;
+            }
+            catch (System.Exception e)
+            {
+                Console.WriteLine($"Error reading Binary File: {e.Message}");
+                return;
+            }
+        }
+        internal List<ReservationManagement> SearchReservation(string reservation_code, string airline, string name)
+        {
+            reservation_code = reservation_code.ToUpper();
+            airline = airline.ToUpper();
+            name = name.ToUpper();
+            List<ReservationManagement> matchingreservations = new List<ReservationManagement>();
+            foreach(ReservationManagement reservation in reservations)
+            {
+                if(reservation.reservation_code.ToLower() == reservation_code||reservation_code=="ANY")
+                {
+                    if (reservation.airline.ToLower() == airline || airline == "ANY")
+                    {
+                        if (reservation.name.ToLower() == name || name == "any")
+                        {
+                            matchingreservations.Add(reservation);
+                        }
+                    }
+                }
+            }
+            return matchingreservations;
 
         }
-        internal void SearchReservation()
-        {
 
+        internal void DeleteReservation(ReservationManagement reservation)
+        {
+            for(int i = 0;i<reservations.Count();i++) 
+            {
+                if (reservations[i].reservation_code==reservation.reservation_code)
+                {
+                    reservations.RemoveAt(i);
+                    string filepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "raw", "reservations.txt");
+
+                    try
+                    {
+                        string jsonString = JsonSerializer.Serialize(reservations);
+                        File.WriteAllText(filepath, jsonString);
+                        ReadFile();
+                        return;
+                    }
+                    catch (System.Exception e)
+                    {
+                        Console.WriteLine($"Error reading Binary File: {e.Message}");
+                        return;
+                    }
+                }
+            }
         }
 
-        internal void DeleteReservation()
+        internal void ModifyReservation(ReservationManagement reservation)
         {
+            for(int i = 0; i<reservations.Count();i++)
+            {
+                if (reservations[i].reservation_code == reservation.reservation_code) 
+                {
+                    reservations[i]= reservation;
+                    string filepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "raw", "reservations.txt");
 
-        }
-
-        internal void ModifyReservation()
-        {
-
+                    try
+                    {
+                        string jsonString = JsonSerializer.Serialize(reservations);
+                        File.WriteAllText(filepath, jsonString);
+                        ReadFile();
+                        return;
+                    }
+                    catch (System.Exception e)
+                    {
+                        Console.WriteLine($"Error reading Binary File: {e.Message}");
+                        return;
+                    }
+                }
+            }
+            throw new System.Exception("No data is present");
         }
         public override string ToString()
         {
