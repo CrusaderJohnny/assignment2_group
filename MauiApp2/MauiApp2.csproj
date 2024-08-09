@@ -60,6 +60,7 @@
     <ItemGroup>
       <None Remove="Resources\Raw\airports.csv" />
       <None Remove="Resources\Raw\flights.csv" />
+      <None Remove="Resources\raw\reservations.txt" />
     </ItemGroup>
 
     <ItemGroup>
