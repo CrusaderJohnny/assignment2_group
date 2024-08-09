@@ -38,7 +38,7 @@ namespace Traveless.Services
                 Console.WriteLine($"Error reading CSV File: {ex.Message}");
             }
         }
-        internal List<Flights> findFlights(string departure, string arrival, string day)
+        internal List<Flights> searchFlights(string departure, string arrival, string day)
         {
             departure = departure.ToUpper();
             arrival = arrival.ToUpper();
@@ -60,7 +60,7 @@ namespace Traveless.Services
             return foundFlights;
         }
 
-        internal Flights findFlights(string flightID)
+        internal Flights searchFlights(string flightID)
         {
             flightID = flightID.ToUpper();
             foreach (Flights flight in flights)

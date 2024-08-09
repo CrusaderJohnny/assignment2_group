@@ -39,7 +39,7 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
             try
             {
                 _chosenReservationNumber = value.Substring(0, 5);
-                chosenReservation = reservationManager.SearchReservation(_chosenReservationNumber);
+                // chosenReservation = reservationManager.SearchReservation(_chosenReservationNumber);
                 modifyItems();
             }catch (Exception e)
             {
@@ -58,13 +58,13 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
                 modifyItems();
             }
         }
-        chosenReservationNumber = chosenReservation.ReservationCode;
+        // chosenReservationNumber = chosenReservation.ReservationCode;
     }
 
     void modifyItems()
     {
         flightNo = chosenReservation.flight_code;
-        airline = chosenReservation.airline;
+        // airline = chosenReservation.airline;
         day = chosenReservation.day;
         time=chosenReservation.time;
         cost = chosenReservation.cost.ToString();
