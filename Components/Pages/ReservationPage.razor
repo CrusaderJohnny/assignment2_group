@@ -57,6 +57,7 @@
             try
             {
                 _chosenReservationNumber = value.Substring(0, 5);
+
                 chosenReservation = reservationManagement.SearchReservation(_chosenReservationNumber);
                 modifyItems();
             }catch (Exception e)
@@ -76,13 +77,14 @@
                 modifyItems();
             }
         }
+
         chosenReservationNumber = chosenReservation.reservation_code;
     }
 
     void modifyItems()
     {
         flightNo = chosenReservation.flight_code;
-        airline = chosenReservation.airline;
+        // airline = chosenReservation.airline;
         day = chosenReservation.day;
         time=chosenReservation.time;
         cost = chosenReservation.cost.ToString();
