@@ -1,6 +1,10 @@
 ﻿@page "/reservationpage"
+@using Traveless.Services
+@inject ReservationManagement reservationManager
+@inject FlightsManager flightsManager
 
 @code
+{
 
 private List<ReservationManagement> reservations = new List<ReservationManagement>();
     private string code { get; set; } = string.Empty;
