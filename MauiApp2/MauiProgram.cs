@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MauiApp2.Data;
+using Microsoft.Extensions.Logging;
 
 namespace MauiApp2
 {
@@ -20,7 +21,7 @@ namespace MauiApp2
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
-
+            builder.Services.AddSingleton<FlightsManager>();
             return builder.Build();
         }
     }
