@@ -1,0 +1,141 @@
+﻿@page "/flightspage"
+@using Traveless.Services
+@using Microsoft.Maui.Controls
+@inject FlightsManager flightsManager
+@inject ReservationManagement reservationManager
+
+
+<div class="header">
+    <h1>Flight Finder</h1>
+</div>
+<div>
+    <label>
+        Departure Airport
+        <InputText @bind-Value="selectedDeparture" />
+    </label>
+
+    <label>
+        Arrival Airport
+        <InputText @bind-Value="selectedArrival" />
+    </label>
+
+    <label>
+        Departure Day
+        <InputText @bind-Value="selectedDay" />
+    </label>
+
+    <button class="btn btn-primary" @onclick="LoadFlights">Search for Flights</button>
+</div>
+<div class="header">
+    <h1>Flights Found</h1>
+</div>
+<div>
+    <select @bind=foundFlightID>
+        @foreach (Flights flight in foundFlights)
+        {
+            <option value="@flight.FlightID">@flight</option>
+        }
+    </select>
+</div>
+<div class="header">
+    <h1>Reservation Information</h1>
+</div>
+
+<div>
+    <label>
+        Flight ID:
+        <InputText @bind-Value="foundFlightID" readonly />
+    </label>
+    <label>
+        Airline name:
+        <InputText @bind-Value="foundAirline" readonly />
+    </label>
+    <label>
+        Day of Flight:
+        <InputText @bind-Value="foundDay" readonly />
+    </label>
+    <label>
+        Flight Time:
+        <InputText @bind-Value="foundTime" readonly />
+    </label>
+    <label>
+        Flight Cost:
+        <InputText @bind-Value="foundCost" readonly />
+    </label>
+    <label>
+        Customer Name:
+        <InputText @bind-Value="clientName" />
+    </label>
+    <label>
+        Customer Citizenship:
+        <InputText @bind-Value="clientCitizen" />
+    </label>
+
+</div>
+
+@code {
+    internal string selectedDeparture { get; set; } = string.Empty;
+    string selectedArrival { get; set; } = string.Empty;
+    string selectedDay { get; set; } = string.Empty;
+    string selectedFlight { get; set; } = string.Empty;
+    string foundAirline { get; set; } = string.Empty;
+    string foundDay { get; set; } = string.Empty;
+    string foundTime { get; set; } = string.Empty;
+    string foundCost { get; set; } = string.Empty;
+    string clientName { get; set; } = string.Empty;
+    string clientCitizen { get; set; } = string.Empty;
+
+    private List<Flights> foundFlights = new List<Flights>();
+
+    private string? _selectedID;
+    private string? errMess;
+
+    string? foundFlightID
+    {
+        get { return _selectedID; }
+        set
+        {
+            _selectedID = value;
+            chosenID = flightsManager.findFlights(_selectedID);
+            loadReservation();
+        }
+    }
+    Flights chosenID;
+    ReservationManagement currentReservation;
+    protected override void OnInitialized()
+    {
+        flightsManager.LoadFromCSV();
+        selectedDeparture = "Any";
+        selectedArrival = "Any";
+        selectedDay = "Any";
+        chosenID = new Flights();
+        currentReservation = new ReservationManagement();
+    }
+    void FindFlights()
+    {
+        foundFlights = flightsManager.findFlights(selectedDeparture, selectedArrival, selectedDay);
+        if(foundFlights.Count() > 0)
+        {
+            chosenID = foundFlights[0];
+            foundFlightID = chosenID.FlightID;
+            loadReservation();
+        }
+    }
+    private void LoadFlights()
+    {
+
+    }
+    void errorFix()
+    {
+        errMess = null;
+    }
+    void loadReservation()
+    {
+        foundFlightID = foundFlightID;
+        foundAirline = chosenID.FlightName;
+        foundDay = chosenID.DayofWeek;
+        foundTime = chosenID.TimeofFlight;
+        foundCost = chosenID.FlightCost.ToString();
+    }
+}
+
