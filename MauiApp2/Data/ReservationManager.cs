@@ -1,5 +1,4 @@
-﻿using Android.Content.Res;
-using MauiApp2.Components.Pages;
+﻿using MauiApp2.Components.Pages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +7,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static Android.Graphics.ImageDecoder;
-using static Android.Resource;
 
 /* This is the ReservationManagement class.
  * this class will hold all methods and attributes related to reservation management and creation,
