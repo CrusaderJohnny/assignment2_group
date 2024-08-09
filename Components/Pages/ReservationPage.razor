@@ -1,8 +1,29 @@
 ﻿@page "/reservationpage"
+@using Traveless.Services
+@using Microsoft.Maui.Controls
+@inject FlightsManager flightManager
+@inject ReservationManagement reservationManagement
 
-@code
+<div id="reservation_select">
+    <label>
+        code:
+        <InputText @bind-Value="searchCode"/>
+    </label>
+    <label>
+        Airline:
+        <InputText @bind-Value="searchAirline" />
+    </label>
+    <label>
+        Name
+        <InputText @bind-Value="searchName" />
+    </label>
+    <button class=" btn btn-primary topbutton" @onclick="SearchReservation">Search Reservation </button>
+</div>
 
-private List<ReservationManagement> reservations = new List<ReservationManagement>();
+
+
+@code{
+    private List<ReservationManagement> reservations = new List<ReservationManagement>();
     private string code { get; set; } = string.Empty;
     private string name { get; set; } = string.Empty;
     private string airline { get; set; } = string.Empty;
@@ -35,7 +56,7 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
             try
             {
                 _chosenReservationNumber = value.Substring(0, 5);
-                chosenReservation = reservationManager.SearchReservation(_chosenReservationNumber);
+                chosenReservation = reservationManagement.SearchReservation(_chosenReservationNumber);
                 modifyItems();
             }catch (Exception e)
             {
@@ -45,7 +66,7 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
     }
     protected void SearchReservation()
     {
-        reservations = reservationManager.SearchReservation(searchCode, searchAirline, searchName);
+        reservations = reservationManagement.SearchReservation(searchCode, searchAirline, searchName);
         if(reservations.Count()>0)
         {
             if(string.IsNullOrEmpty(chosenReservation.flight_code))
@@ -54,7 +75,7 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
                 modifyItems();
             }
         }
-        chosenReservationNumber = chosenReservation.ReservationCode;
+        chosenReservationNumber = chosenReservation.reservation_code;
     }
 
     void modifyItems()
@@ -68,6 +89,10 @@ private List<ReservationManagement> reservations = new List<ReservationManagemen
         citizenship = chosenReservation.citizenship;
     }
 
+    void resertError()
+    {
+        errorMessage = null;
+    }
 
     private int currentCount = 0;
 
