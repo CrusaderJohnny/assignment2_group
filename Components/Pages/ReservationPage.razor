@@ -1,2 +1,78 @@
 ﻿@page "/reservationpage"
 
+@code
+
+private List<ReservationManagement> reservations = new List<ReservationManagement>();
+    private string code { get; set; } = string.Empty;
+    private string name { get; set; } = string.Empty;
+    private string airline { get; set; } = string.Empty;
+    private string flightNo { get; set; } = string.Empty;
+    private string day { get; set; } = string.Empty;
+    private string cost { get; set; } = string.Empty;
+    private string time { get; set; } = string.Empty;
+    private string citizenship { get; set; } = string.Empty;
+
+    private string searchCode { get; set; } = string.Empty;
+    private string searchName { get; set; } = string.Empty;
+    private string searchAirline { get; set; } = string.Empty;
+
+    private string? errorMessage;
+    private string? successMessage;
+
+    private string? reservationCode;
+
+    private bool activeReservation;
+    ReservationManagement chosenReservation;
+    string _chosenReservationNumber;
+    string chosenReservationNumber
+    {
+        get
+        {
+            return _chosenReservationNumber;
+        }
+        set
+        {
+            try
+            {
+                _chosenReservationNumber = value.Substring(0, 5);
+                chosenReservation = reservationManager.SearchReservation(_chosenReservationNumber);
+                modifyItems();
+            }catch (Exception e)
+            {
+                errorMessage = "No reservation stored";
+            }
+        }
+    }
+    protected void SearchReservation()
+    {
+        reservations = reservationManager.SearchReservation(searchCode, searchAirline, searchName);
+        if(reservations.Count()>0)
+        {
+            if(string.IsNullOrEmpty(chosenReservation.flight_code))
+            {
+                chosenReservation = reservations[0];
+                modifyItems();
+            }
+        }
+        chosenReservationNumber = chosenReservation.ReservationCode;
+    }
+
+    void modifyItems()
+    {
+        flightNo = chosenReservation.flight_code;
+        airline = chosenReservation.airline;
+        day = chosenReservation.day;
+        time=chosenReservation.time;
+        cost = chosenReservation.cost.ToString();
+        name = chosenReservation.name;
+        citizenship = chosenReservation.citizenship;
+    }
+
+
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
