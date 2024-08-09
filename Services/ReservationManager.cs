@@ -14,7 +14,7 @@ namespace Traveless.Services
          */
         public string reservation_code { get { return reservation_code; } set { reservation_code = value; } }
         public string flight_code { get { return flight_code; } set { flight_code = value; } }
-        private string airline { get { return airline; } set { airline = value; } }
+        public string airline { get { return airline; } set { airline = value; } }
         public string cost { get { return cost; } set { cost = value; } }
         public string day { get { return day; } set { day = value; } }
         public string time { get { return time; } set { time = value; } }
@@ -137,6 +137,18 @@ namespace Traveless.Services
             }
             return matchingreservations;
 
+        }
+        internal ReservationManagement SearchReservation(string reservation_code)
+        {
+            reservation_code= reservation_code.ToUpper();  
+            foreach(ReservationManagement reservation in reservations)
+            {
+                if(reservation.reservation_code == reservation_code)
+                {
+                    return reservation;
+                }
+            }
+            return new ReservationManagement();
         }
 
         internal void DeleteReservation(ReservationManagement reservation)
