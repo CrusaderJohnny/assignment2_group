@@ -1,36 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper;
 
 namespace Traveless.Services
 {
     public class FlightsManager
     {
         internal List<Flights> flights = new List<Flights>();
-        internal string csvFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "raw", "flights.csv");
 
         internal void LoadFromCSV()
         {
             flights.Clear();
+            string csvFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "data", "flights.csv");
+
             try
             {
                 using (var sr = new StreamReader(csvFile))
+                using(var csv = new CsvReader(sr, CultureInfo.InvariantCulture)) 
                 {
-                    string line;
-                    while ((line = sr.ReadLine()) != null)
+                    while (csv.Read())
                     {
-                        string[] values = line.Split(',');
-                        if (values.Length == 8)
-                        {
-                            flights.Add(new Flights(values[0], values[1], values[2], values[3], values[4], values[5], Int32.Parse(values[6]), double.Parse(values[7])));
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Invalid Data in line: {line}");
-                        }
+                        flights.Add(new Flights(csv.GetField(0), csv.GetField(1), csv.GetField(2), csv.GetField(3), csv.GetField(4), csv.GetField(5), Int32.Parse(csv.GetField(6)), float.Parse(csv.GetField(7))));
                     }
+                    return;
                 }
             }
             catch (Exception ex)
@@ -113,9 +109,11 @@ namespace Traveless.Services
 
         internal void SaveFlights()
         {
+
             try
             {
                 List<string> savedFlights = new List<string>();
+                string csvFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "data", "flights.csv");
                 foreach (Flights flight in flights)
                 {
                     string[] items = [flight.FlightID, flight.FlightName, flight.FromPort, flight.ToPort, flight.DayofWeek, flight.TimeofFlight, flight.FreeSeats.ToString(), flight.FlightCost.ToString()];
