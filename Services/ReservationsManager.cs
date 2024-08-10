@@ -9,14 +9,14 @@ namespace Traveless.Services
 {
     public class ReservationsManager
     {
-        internal List<Reservations>? Reservations = new List<Reservations>();
+        internal List<Reservations>? reservs = new List<Reservations>();
 
         internal void SaveToFile(Reservations reservations)
         {
             bool exists = false;
             do
             {
-                foreach (Reservations reserv in Reservations)
+                foreach (Reservations reserv in reservs)
                 {
                     if(reservations.Reservation_Code == reserv.Reservation_Code)
                     {
@@ -27,11 +27,11 @@ namespace Traveless.Services
                 }
                 exists = false;
             }while (exists);
-            Reservations.Add(reservations);
+            reservs.Add(reservations);
             string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "reservations", "reservations.txt");
             try
             {
-                string jstring = JsonSerializer.Serialize(Reservations);
+                string jstring = JsonSerializer.Serialize(reservs);
                 File.WriteAllText(saveFile, jstring);
                 return;
             }
@@ -43,15 +43,15 @@ namespace Traveless.Services
         }
         internal void UpdateReservationFile(Reservations reservations)
         {
-            for (int i = 0; i < Reservations.Count; i++)
+            for (int i = 0; i < reservs.Count(); i++)
             {
-                if (Reservations[i].Reservation_Code == reservations.Reservation_Code)
+                if (reservs[i].Reservation_Code == reservations.Reservation_Code)
                 {
-                    Reservations[i] = reservations;
+                    reservs[i] = reservations;
                     string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "reservations", "reservations.txt");
                     try
                     {
-                        string jstring = JsonSerializer.Serialize(Reservations);
+                        string jstring = JsonSerializer.Serialize(reservs);
                         File.WriteAllText(saveFile, jstring);
                         LoadReservations();
                         return;
@@ -67,15 +67,15 @@ namespace Traveless.Services
         }
         internal void RemoveReservationFile(Reservations reservations)
         {
-            for(int i = 0;i < Reservations.Count;i++)
+            for(int i = 0;i < reservs.Count();i++)
             {
-                if (Reservations[i].Reservation_Code == reservations.Reservation_Code)
+                if (reservs[i].Reservation_Code == reservations.Reservation_Code)
                 {
-                    Reservations.RemoveAt(i);
+                    reservs.RemoveAt(i);
                     string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../..", "resources", "reservations", "reservations.txt");
                     try
                     {
-                        string jstring = JsonSerializer.Serialize(Reservations);
+                        string jstring = JsonSerializer.Serialize(reservs);
                         File.WriteAllText(saveFile, jstring);
                         LoadReservations();
                         return;
@@ -95,8 +95,8 @@ namespace Traveless.Services
             try
             {
                 string jstring = File.ReadAllText(saveFile);
-                Reservations.Clear();
-                Reservations = JsonSerializer.Deserialize<List<Reservations>>(jstring);
+                reservs.Clear();
+                reservs = JsonSerializer.Deserialize<List<Reservations>>(jstring);
                 return;
             }
             catch (Exception ex)
@@ -111,7 +111,7 @@ namespace Traveless.Services
             flightName = flightName.ToLower();
             clientName = clientName.ToLower();
             List<Reservations> foundReservations = new List<Reservations>();
-            foreach(Reservations reservation in Reservations)
+            foreach(Reservations reservation in reservs)
             {
                 if(reservation.Reservation_Code == reservation_code || reservation_code == "ANY")
                 {
@@ -129,7 +129,7 @@ namespace Traveless.Services
         internal Reservations SearchReservations(string reservation_code)
         {
             reservation_code = reservation_code.ToUpper();
-            foreach(Reservations reservation in Reservations)
+            foreach(Reservations reservation in reservs)
             {
                 if(reservation.Reservation_Code == reservation_code)
                 {

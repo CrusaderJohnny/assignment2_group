@@ -23,7 +23,7 @@ namespace Traveless
 #endif
 
             builder.Services.AddSingleton<FlightsManager>();
-            //builder.Services.AddSingleton<ReservationManagement>();
+            builder.Services.AddSingleton<ReservationsManager>();
 
             return builder.Build();
         }
