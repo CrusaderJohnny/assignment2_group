@@ -1,0 +1,194 @@
+﻿@page "/flightspage"
+@using Traveless.Services
+@using Microsoft.Maui.Controls
+@inject FlightsManager flightsManager
+@inject ReservationsManager reservationsManager
+
+<div class="header">
+    <h1>
+        Flights Finder
+    </h1>
+</div>
+<div id="selectedFlights">
+    <label>
+        From Airport:
+        <InputText @bind-Value="fromPort"/>
+    </label>
+
+    <label>
+        To Airport:
+        <InputText @bind-Value="toPort"/>
+    </label>
+
+    <label>
+        Day of Flight:
+        <InputText @bind-Value="findDay"/>
+    </label>
+
+    <button class="btn btn-primary" @onclick="SearchFlights">Search for Flights</button>
+</div>
+<div class="header">
+    <h1>Found Flights</h1>
+</div>
+
+<div>
+    <select @bind="foundFlightID">
+        @foreach(Flights flights in foundFlights)
+        {
+            <option value="@flights.FlightID">@flights</option>
+        }
+    </select>
+</div>
+
+<div class="header">
+    <h1>Flight Reservation</h1>
+</div>
+
+<div id="reservationSection">
+    <label>
+        Flight ID:
+        <InputText @bind-Value="foundFlightID" readonly/>
+    </label>
+
+    <lable>
+        Flight Name:
+        <InputText @bind-Value="flightName" readonly/>
+    </lable>
+
+    <label>
+        Day of Flight:
+        <InputText @bind-Value="dayofWeek" readonly/>
+    </label>
+
+    <label>
+        Time of Flight:
+        <InputText @bind-Value="timeofFlight" readonly/>
+    </label>
+
+    <label>
+        Cost of Flight:
+        <InputText @bind-Value="costofFlight" readonly/>
+    </label>
+
+    <label>
+        Client Name:
+        <InputText @bind-Value="clientName"/>
+    </label>
+
+    <label>
+        Client citizenship:
+        <InputText @bind-Value="clientCitizen"/>
+    </label>
+
+    <button class="btn btn-primary" @onclick="ReserveToFile">Reserve Flight</button>
+    @if(!string.IsNullOrEmpty(errMess))
+    {
+        <div class="alert alert-danger">@errMess</div>
+    }
+
+    <p>Reservation Code: @reservation_code</p>
+</div>
+
+
+
+
+@code {
+    private List<Flights> foundFlights = new List<Flights>();
+    private string fromPort { get; set; } = string.Empty;
+    private string toPort { get; set; } = string.Empty;
+    private string findDay { get; set; } = string.Empty;
+    private string dayofWeek { get; set; } = string.Empty;
+    private string flightName { get; set; } = string.Empty;
+    private string flightID { get; set; } = string.Empty;
+    private string costofFlight { get; set; } = string.Empty;
+    private string timeofFlight { get; set; } = string.Empty;
+    private string clientName { get; set; } = string.Empty;
+    private string clientCitizen { get; set; } = string.Empty;
+    private string? errMess;
+    private string? _foundFlightID;
+    private string? reservation_code;
+    string? foundFlightID
+    {
+        get { return _foundFlightID; }
+        set
+        {
+            _foundFlightID = value;
+            flightSelected = flightsManager.searchFlights(_foundFlightID);
+            loadFlights();
+        }
+    }
+    Flights flightSelected;
+    Reservations reservationSelected;
+    protected override void OnInitialized()
+    {
+        flightsManager.LoadFromCSV();
+        fromPort = "Any";
+        toPort = "Any";
+        findDay = "Any";
+        flightSelected = new Flights();
+        reservationSelected = new Reservations();
+    }
+    void SearchFlights()
+    {
+        foundFlights = flightsManager.searchFlights(fromPort, toPort, findDay);
+        if(foundFlights.Count() > 0)
+        {
+            flightSelected = foundFlights[0];
+            foundFlightID = flightSelected.FlightID;
+            loadFlights();
+        }
+    }
+    void ReserveToFile()
+    {
+        try
+        {
+            Flights flights = flightsManager.searchFlights(flightID);
+            if(string.IsNullOrEmpty(foundFlightID))
+            {
+                throw new Exception("A flight number must be selected");
+            }
+            if(string.IsNullOrEmpty(flights.ToString()))
+            {
+                throw new Exception("No flights with matching number");
+            }
+            if(string.IsNullOrEmpty(clientName))
+            {
+                throw new Exception("Client name must not be blank");
+            }
+            if(string.IsNullOrEmpty(clientCitizen))
+            {
+                throw new Exception("Client citizenship must not be blank");
+            }
+            if(flights.FreeSeats <= 0)
+            {
+                throw new Exception("No seats left on this flight");
+            }
+            if(string.IsNullOrEmpty(timeofFlight))
+            {
+                timeofFlight = DateTime.Now.ToString("HH:mm");
+            }
+            reservationSelected = new Reservations(flightID, flightName, dayofWeek, timeofFlight, float.Parse(costofFlight), clientName, clientCitizen);
+            reservation_code = reservationSelected.Reservation_Code;
+            reservationsManager.SaveToFile(reservationSelected);
+            flightsManager.SeatReservation(flightID);
+            errorFix();
+        }
+        catch (Exception ex)
+        {
+            errMess = ex.Message;
+        }
+    }
+    void errorFix()
+    {
+        errMess = null;
+    }
+    void loadFlights()
+    {
+        flightID = flightSelected.FlightID;
+        flightName = flightSelected.FlightName;
+        dayofWeek = flightSelected.DayofWeek;
+        timeofFlight = flightSelected.TimeofFlight;
+        costofFlight = flightSelected.FlightCost.ToString();
+    }
+
+}

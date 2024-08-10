@@ -1,106 +1,277 @@
 ﻿@page "/reservationpage"
 @using Traveless.Services
 @using Microsoft.Maui.Controls
-@inject FlightsManager flightManager
-@inject ReservationManagement reservationManagement
+@inject FlightsManager flightsManager
+@inject ReservationsManager reservationsManager
+<div id="findReservations">
+    <label>
+        Reservation Code:
+        <InputText @bind-Value="findResCode"/>
+    </label>
 
-<div id="reservation_select">
     <label>
-        code:
-        <InputText @bind-Value="searchCode"/>
+        Flight Name:
+        <InputText @bind-Value="flightName"/>
     </label>
-    <label>
-        Airline:
-        <InputText @bind-Value="searchAirline" />
-    </label>
-    <label>
-        Name
-        <InputText @bind-Value="searchName" />
-    </label>
-    <button class=" btn btn-primary topbutton" @onclick="SearchReservation">Search Reservation </button>
+
+    <lable>
+        Client Name:
+        <InputText @bind-Value="clientName"/>
+    </lable>
+
+    <button class="btn btn-primary" @onclick="SearchReservations">Search Reservations</button>
 </div>
 
+<div class="header">
+    <h1>Flight Reservations</h1>
+</div>
 
+@if (string.IsNullOrEmpty(foundReservation.FlightID))
+{
+    
+}
+else if(foundReservation.ActiveReservation)
+{
+    <p>Flight reservation is currently active</p>
+    activeReservation = true;
+}
+else
+{
+    activeReservation = false;
+    <p>Flight reservation is currently not active</p>
+}
+<div>
+    <select @bind=foundResNumber>
+        @foreach(Reservations reservations in savedReservations)
+        {
+            <option value="@reservations.Reservation_Code">@reservations</option>
+        }
+    </select>
+</div>
+
+<div class="header">
+    <h1>Modify Reservations</h1>
+</div>
+
+<div id="reservationEdit">
+    <label>
+        Reservation Code:
+        <InputText @bind-Value="foundResNumber" readonly/>
+    </label>
+
+    <label>
+        Flight ID:
+        <InputText @bind-Value="flightID" readonly />
+    </label>
+
+    <label>
+        Flight Name:
+        <InputText @bind-Value="flightName" readonly/>
+    </label>
+
+    <label>
+        Day of Flight
+        <InputText @bind-Value="dayofWeek" readonly/>
+    </label>
+
+    <label>
+        Time of Flight
+        <InputText @bind-Value="timeofFlight" readonly/>
+    </label>
+
+    <label>
+        Cost of Flight:
+        <InputText @bind-Value="costofFlight" readonly/>
+    </label>
+
+    <label>
+        Client Name:
+        <InputText @bind-Value="clientName"/>
+    </label>
+
+    <label>
+        Client Citizenship:
+        <InputText @bind-Value="clientCitizen"/>
+    </label>
+</div>
+<div class="manyButtons">
+    <button @onclick="ChangeReservationInfo" class="btn btn-primary">Update Reservation</button>
+
+    <button @onclick="RemoveReservations" class="btn btn-primary">Deactivate Reservation</button>
+    @if(!string.IsNullOrEmpty(errMess))
+    {
+        <div class="alert alert-danger">@errMess</div>
+    }
+    @if(!string.IsNullOrEmpty(victoryMessage))
+    {
+        <div class="alert alert-success">@victoryMessage</div>
+    }
+</div>
 
 @code
 {
-    private List<ReservationManagement> reservations = new List<ReservationManagement>();
-    private string code { get; set; } = string.Empty;
-    private string name { get; set; } = string.Empty;
-    private string airline { get; set; } = string.Empty;
-    private string flightNo { get; set; } = string.Empty;
-    private string day { get; set; } = string.Empty;
-    private string cost { get; set; } = string.Empty;
-    private string time { get; set; } = string.Empty;
-    private string citizenship { get; set; } = string.Empty;
-
-    private string searchCode { get; set; } = string.Empty;
-    private string searchName { get; set; } = string.Empty;
-    private string searchAirline { get; set; } = string.Empty;
-
-    private string? errorMessage;
-    private string? successMessage;
-
-    private string? reservationCode;
-
+    private List<Reservations> savedReservations = new List<Reservations>();
+    private string flightID { get; set; } = string.Empty;
+    private string flightName { get; set; } = string.Empty;
+    private string dayofWeek { get; set; } = string.Empty;
+    private string costofFlight { get; set; } = string.Empty;
+    private string timeofFlight { get; set; } = string.Empty;
+    private string clientName { get; set; } = string.Empty;
+    private string clientCitizen { get; set; } = string.Empty;
+    private string findResCode { get; set; } = string.Empty;
+    private string findFlightName { get; set; } = string.Empty;
+    private string findClientName { get; set; } = string.Empty;
+    private string? errMess;
+    private string? victoryMessage;
+    private string? reservation_code;
     private bool activeReservation;
-    ReservationManagement chosenReservation;
-    string _chosenReservationNumber;
-    string chosenReservationNumber
-    {
-        get
-        {
-            return _chosenReservationNumber;
-        }
-        set
-        {
-            try
-            {
-                _chosenReservationNumber = value.Substring(0, 5);
 
-                chosenReservation = reservationManagement.SearchReservation(_chosenReservationNumber);
-                modifyItems();
-            }catch (Exception e)
+    Reservations foundReservation;
+    string _foundResNumber;
+    string foundResNumber
+    {
+        get { return _foundResNumber; }
+        set { try
             {
-                errorMessage = "No reservation stored";
+                _foundResNumber = value.Substring(0, 5);
+                foundReservation = reservationsManager.SearchReservations(_foundResNumber);
+                loadReservations();
+            }
+            catch (Exception ex)
+            {
+                errMess = "No reservations saved";
             }
         }
     }
-    protected void SearchReservation()
+    protected override void OnInitialized()
     {
-        reservations = reservationManagement.SearchReservation(searchCode, searchAirline, searchName);
-        if(reservations.Count()>0)
+        reservationsManager.LoadReservations();
+        flightsManager.LoadFromCSV();
+        findResCode = "Any";
+        findFlightName = "Any";
+        findClientName = "Any";
+        foundReservation = new Reservations();
+    }
+    protected void SearchReservations()
+    {
+        savedReservations = reservationsManager.SearchReservations(findResCode, findFlightName, findClientName);
+        if(savedReservations.Count() > 0)
         {
-            if(string.IsNullOrEmpty(chosenReservation.flight_code))
+            if(string.IsNullOrEmpty(foundReservation.Reservation_Code))
             {
-                chosenReservation = reservations[0];
-                modifyItems();
+                foundReservation = savedReservations[0];
+                loadReservations();
             }
         }
-
-        chosenReservationNumber = chosenReservation.reservation_code;
+        foundResNumber = foundReservation.Reservation_Code;
     }
-
-    void modifyItems()
+    void ChangeReservationInfo()
     {
-        flightNo = chosenReservation.flight_code;
-        // airline = chosenReservation.airline;
-        day = chosenReservation.day;
-        time=chosenReservation.time;
-        cost = chosenReservation.cost.ToString();
-        name = chosenReservation.name;
-        citizenship = chosenReservation.citizenship;
+        try
+        {
+            Reservations reserve = reservationsManager.SearchReservations(foundResNumber);
+            if(string.IsNullOrEmpty(foundResNumber))
+            {
+                throw new Exception("A reservation must be selected first");
+            }
+            if (string.IsNullOrEmpty(reserve.ToString()))
+            {
+                throw new Exception("No reservations match that number");
+            }
+            if(string.IsNullOrEmpty(clientName))
+            {
+                throw new Exception("Client must enter a name");
+            }
+            if(string.IsNullOrEmpty(clientCitizen))
+            {
+                throw new Exception("Client must enter a citizenship");
+            }
+            Flights flights = flightsManager.searchFlights(reserve.FlightID);
+            if(string.IsNullOrEmpty(flights.ToString()))
+            {
+                throw new Exception("No flights found with that number");
+            }
+            else if (flights.FreeSeats <= 0) 
+            {
+                throw new Exception("No seats left on flight");
+            }
+            if(string.IsNullOrEmpty(timeofFlight))
+            {
+                timeofFlight = DateTime.Now.ToString("HH:mm");
+            }
+            Reservations updateReservations = new Reservations(foundReservation.Reservation_Code, flightID, flightName, dayofWeek, timeofFlight, float.Parse(costofFlight), clientName, clientCitizen, true);
+            reservationsManager.UpdateReservationFile(updateReservations);
+            reservationsManager.LoadReservations();
+            victoryMessage = $"Reservation succesfully updated";
+            if (!activeReservation)
+                flightsManager.SeatReservation(flightID);
+            errorFix();
+        }
+        catch (Exception ex)
+        {
+            errMess = ex.Message;
+        }
+        SearchReservations();
     }
-
-    void resertError()
+    void RemoveReservations()
     {
-        errorMessage = null;
+        try
+        {
+            Reservations reservations = reservationsManager.SearchReservations(foundResNumber);
+            if (string.IsNullOrEmpty(foundResNumber))
+            {
+                throw new Exception("A reservation must be selected first");
+            }
+            if (string.IsNullOrEmpty(reservations.ToString()))
+            {
+                throw new Exception("No reservations match that number");
+            }
+            if (string.IsNullOrEmpty(clientName))
+            {
+                throw new Exception("Client must enter a name");
+            }
+            if (string.IsNullOrEmpty(clientCitizen))
+            {
+                throw new Exception("Client must enter a citizenship");
+            }
+            Flights flights = flightsManager.searchFlights(reservations.FlightID);
+            if (string.IsNullOrEmpty(flights.ToString()))
+            {
+                throw new Exception("No flights found with that number");
+            }
+            if (string.IsNullOrEmpty(timeofFlight))
+            {
+                timeofFlight = DateTime.Now.ToString("HH:mm");
+            }
+            Reservations updateReservations = new Reservations(foundReservation.Reservation_Code, flightID, flightName, dayofWeek, timeofFlight, float.Parse(costofFlight), clientName, clientCitizen, false);
+            reservationsManager.UpdateReservationFile(updateReservations);
+            reservationsManager.LoadReservations();
+            loadReservations();
+            victoryMessage = $"Reservation succusfully deactivated";
+            errorFix();
+            if (activeReservation)
+                flightsManager.UnreserveSeat(flightID);
+        }
+        catch (Exception ex)
+        {
+            errMess = ex.Message;
+        }
+        SearchReservations();
     }
-
-    private int currentCount = 0;
-
-    private void IncrementCount()
+    void errorFix()
     {
-        currentCount++;
+        errMess = null;
     }
+    void loadReservations()
+    {
+        flightID = foundReservation.FlightID;
+        flightName = foundReservation.FlightName;
+        dayofWeek = foundReservation.DayofWeek;
+        timeofFlight = foundReservation.TimeofFlight;
+        costofFlight = foundReservation.FlightCost.ToString();
+        clientName = foundReservation.ClientName;
+        clientCitizen = foundReservation.ClientCitizen;
+    }
+
+
 }

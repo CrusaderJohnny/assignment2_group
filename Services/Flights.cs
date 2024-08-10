@@ -15,7 +15,7 @@ namespace Traveless.Services
         private string dayofWeek;
         private string timeofFlight;
         private int freeSeats;
-        private double flightCost;
+        private float flightCost;
         public string FlightID
         {
             get { return flightID; }
@@ -51,14 +51,14 @@ namespace Traveless.Services
             get { return freeSeats; }
             set { freeSeats = value; }
         }
-        public double FlightCost
+        public float FlightCost
         {
             get { return flightCost; }
             set { flightCost = value; }
         }
 
 
-        public Flights(string flightID, string flightName, string fromPort, string toPort, string dayofWeek, string timeofFlight, int freeSeats, double flightCost)
+        public Flights(string flightID, string flightName, string fromPort, string toPort, string dayofWeek, string timeofFlight, int freeSeats, float flightCost)
         {
             this.FlightID = flightID;
             this.FlightName = flightName;
@@ -75,11 +75,11 @@ namespace Traveless.Services
         }
         public override string ToString()
         {
-            if (FlightID == null)
+            if (flightID == null)
             {
-                return "Loading...";
+                return "";
             }
-            return $"Flight ID: {FlightID}, Flight Name: {FlightName}, From Airport: {FromPort}, To Airport: {ToPort}, Day: {DayofWeek}, Time: {TimeofFlight}, Seats Available: {FreeSeats}, Cost: ${FlightCost}";
+            return $"{FlightID}, {FlightName}, {FromPort}, {ToPort}, {DayofWeek},  {TimeofFlight}, Seats Available: {FreeSeats}, Cost: ${FlightCost}";
 
         }
     }
