@@ -11,12 +11,12 @@
 
     <label>
         Flight Name:
-        <InputText @bind-Value="flightName"/>
+        <InputText @bind-Value="findFlightName"/>
     </label>
 
     <lable>
         Client Name:
-        <InputText @bind-Value="clientName"/>
+        <InputText @bind-Value="findClientName"/>
     </lable>
 
     <button class="btn btn-primary" @onclick="SearchReservations">Search Reservations</button>
@@ -132,7 +132,7 @@ else
         get { return _foundResNumber; }
         set { try
             {
-                _foundResNumber = value.Substring(0, 5);
+                _foundResNumber = value.Substring(0, 6);
                 foundReservation = reservationsManager.SearchReservations(_foundResNumber);
                 loadReservations();
             }
