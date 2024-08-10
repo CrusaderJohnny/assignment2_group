@@ -47,8 +47,8 @@ namespace Traveless.Services
         }
         public float FlightCost
         {
-            get { return FlightCost; }
-            set { FlightCost = value; }
+            get { return flightCost; }
+            set { flightCost = value; }
         }
         public string ClientName
         {

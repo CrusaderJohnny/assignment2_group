@@ -123,7 +123,6 @@ else
     private string findClientName { get; set; } = string.Empty;
     private string? errMess;
     private string? victoryMessage;
-    private string? reservation_code;
     private bool activeReservation;
 
     Reservations foundReservation;
@@ -137,7 +136,7 @@ else
                 foundReservation = reservationsManager.SearchReservations(_foundResNumber);
                 loadReservations();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 errMess = "No reservations saved";
             }
