@@ -44,9 +44,9 @@ namespace Traveless.Services
             {
                 if (flight.FromPort == departure || departure == "ANY")
                 {
-                    if (flight.ToPort == arrival || departure == "ANY")
+                    if (flight.ToPort == arrival || arrival == "ANY")
                     {
-                        if (flight.DayofWeek == day || day == "ANY")
+                        if (flight.DayofWeek == day || day == "any")
                         {
                             foundFlights.Add(flight);
                         }

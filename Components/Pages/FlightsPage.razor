@@ -169,7 +169,7 @@
             }
             reservationSelected = new Reservations(flightID, flightName, dayofWeek, timeofFlight, float.Parse(costofFlight), clientName, clientCitizen);
             reservation_code = reservationSelected.Reservation_Code;
-            // reservationsManager.SaveToFile(reservationSelected);
+            reservationsManager.SaveToFile(reservationSelected);
             flightsManager.SeatReservation(flightID);
             errorFix();
         }
