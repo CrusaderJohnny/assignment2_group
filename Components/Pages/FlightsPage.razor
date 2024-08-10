@@ -25,13 +25,15 @@
         <InputText @bind-Value="findDay"/>
     </label>
 
+</div>
+<div id="findButton">
     <button class="btn btn-primary" @onclick="SearchFlights">Search for Flights</button>
 </div>
 <div class="header">
     <h1>Found Flights</h1>
 </div>
 
-<div>
+<div id="selectWheel">
     <select @bind="foundFlightID">
         @foreach(Flights flights in foundFlights)
         {
@@ -50,10 +52,10 @@
         <InputText @bind-Value="foundFlightID" readonly/>
     </label>
 
-    <lable>
+    <label>
         Flight Name:
         <InputText @bind-Value="flightName" readonly/>
-    </lable>
+    </label>
 
     <label>
         Day of Flight:
@@ -79,16 +81,16 @@
         Client citizenship:
         <InputText @bind-Value="clientCitizen"/>
     </label>
-
+</div>
+<div id="reservationButton">
     <button class="btn btn-primary" @onclick="ReserveToFile">Reserve Flight</button>
-    @if(!string.IsNullOrEmpty(errMess))
+    @if (!string.IsNullOrEmpty(errMess))
     {
         <div class="alert alert-danger">@errMess</div>
     }
 
-    <p>Reservation Code: @reservation_code</p>
 </div>
-
+<p>Reservation Code: @reservation_code</p>
 
 
 
