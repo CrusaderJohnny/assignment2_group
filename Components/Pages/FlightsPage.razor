@@ -4,34 +4,35 @@
 @inject FlightsManager flightsManager
 @inject ReservationsManager reservationsManager
 
-
 <div class="header">
-    <h1>Flight Finder</h1>
+    <h1>
+        Flights Finder
+    </h1>
 </div>
-<div>
+<div id="selectedFlights">
     <label>
-        Departure Airport
-        <InputText @bind-Value="selectedDeparture" />
+        From Airport:
+        <InputText @bind-Value="fromPort"/>
     </label>
 
     <label>
-        Arrival Airport
-        <InputText @bind-Value="selectedArrival" />
+        To Airport:
+        <InputText @bind-Value="toPort"/>
     </label>
 
     <label>
-        Departure Day
-        <InputText @bind-Value="selectedDay" />
+        Day of Flight:
+        <InputText @bind-Value="findDay"/>
     </label>
 
-    <button class="btn btn-primary" @onclick="LoadFlights">Search for Flights</button>
+    <button class="btn btn-primary" @onclick="SearchFlights">Search for Flights</button>
 </div>
 <div class="header">
-    <h1>Flights Found</h1>
+    <h1>Found Flights</h1>
 </div>
 
 <div>
-    <select @bind=foundFlightID>
+    <select @bind="foundFlightID">
         @foreach(Flights flights in foundFlights)
         {
             <option value="@flights.FlightID">@flights</option>
@@ -40,134 +41,136 @@
 </div>
 
 <div class="header">
-    <h1>Reservation Information</h1>
+    <h1>Flight Reservation</h1>
 </div>
 
-<div id="reservationForm">
+<div id="reservationSection">
     <label>
         Flight ID:
-        <InputText @bind-Value="foundFlightID" readonly />
+        <InputText @bind-Value="foundFlightID" readonly/>
     </label>
 
-    <label>
-        Airline name:
-        <InputText @bind-Value="foundFlightName" readonly />
-    </label>
+    <lable>
+        Flight Name:
+        <InputText @bind-Value="flightName" readonly/>
+    </lable>
 
     <label>
         Day of Flight:
-        <InputText @bind-Value="foundDay" readonly />
+        <InputText @bind-Value="dayofWeek" readonly/>
     </label>
 
     <label>
-        Flight Time:
-        <InputText @bind-Value="foundTime" readonly />
+        Time of Flight:
+        <InputText @bind-Value="timeofFlight" readonly/>
     </label>
 
     <label>
-        Flight Cost:
-        <InputText @bind-Value="foundCost" readonly />
+        Cost of Flight:
+        <InputText @bind-Value="costofFlight" readonly/>
     </label>
 
     <label>
-        Customer Name:
-        <InputText @bind-Value="clientName" />
+        Client Name:
+        <InputText @bind-Value="clientName"/>
     </label>
 
     <label>
-        Customer Citizenship:
-        <InputText @bind-Value="clientCitizen" />
+        Client citizenship:
+        <InputText @bind-Value="clientCitizen"/>
     </label>
 
-    <button class="btn btn-primary" @onclick="ReserveFlight">Reserve Flight</button>
-
-    @if (!string.IsNullOrEmpty(errMess))
+    <button class="btn btn-primary" @onclick="ReserveToFile">Reserve Flight</button>
+    @if(!string.IsNullOrEmpty(errMess))
     {
         <div class="alert alert-danger">@errMess</div>
     }
 
+    <p>Reservation Code: @reservation_code</p>
 </div>
 
-<p>Flight Reservation Code: @resFlightCode</p>
+
+
 
 @code {
     private List<Flights> foundFlights = new List<Flights>();
-    internal string selectedDeparture { get; set; } = string.Empty;
-    private string selectedArrival { get; set; } = string.Empty;
-    private string selectedDay { get; set; } = string.Empty;
-    private string foundID { get; set; } = string.Empty;
-    private string foundFlightName { get; set; } = string.Empty;
-    private string foundDay { get; set; } = string.Empty;
-    private string foundTime { get; set; } = string.Empty;
-    private string foundCost { get; set; } = string.Empty;
+    private string fromPort { get; set; } = string.Empty;
+    private string toPort { get; set; } = string.Empty;
+    private string findDay { get; set; } = string.Empty;
+    private string dayofWeek { get; set; } = string.Empty;
+    private string flightName { get; set; } = string.Empty;
+    private string flightID { get; set; } = string.Empty;
+    private string costofFlight { get; set; } = string.Empty;
+    private string timeofFlight { get; set; } = string.Empty;
     private string clientName { get; set; } = string.Empty;
     private string clientCitizen { get; set; } = string.Empty;
-    private string? _selectedID;
     private string? errMess;
-    public string? resFlightCode;
-    private string? foundFlightID
+    private string? _foundFlightID;
+    private string? reservation_code;
+    string? foundFlightID
     {
-        get { return _selectedID; }
+        get { return _foundFlightID; }
         set
         {
-            _selectedID = value;
-            chosenFlight = flightsManager.searchFlights(_selectedID);
-            loadFlight();
+            _foundFlightID = value;
+            flightSelected = flightsManager.searchFlights(_foundFlightID);
+            loadFlights();
         }
     }
-    Flights chosenFlight;
-    Reservations currentReservation;
+    Flights flightSelected;
+    Reservations reservationSelected;
     protected override void OnInitialized()
     {
         flightsManager.LoadFromCSV();
-        selectedDeparture = "Any";
-        selectedArrival = "Any";
-        selectedDay = "Any";
-        chosenFlight = new Flights();
-        currentReservation = new Reservations();
+        fromPort = "Any";
+        toPort = "Any";
+        findDay = "Any";
+        flightSelected = new Flights();
+        reservationSelected = new Reservations();
     }
-    void LoadFlights()
+    void SearchFlights()
     {
-        foundFlights = flightsManager.searchFlights(selectedDeparture, selectedArrival, selectedDay);
-        if (foundFlights.Count() > 0)
+        foundFlights = flightsManager.searchFlights(fromPort, toPort, findDay);
+        if(foundFlights.Count() > 0)
         {
-            chosenFlight = foundFlights[0];
-            foundFlightID = chosenFlight.FlightID;
-            loadFlight();
+            flightSelected = foundFlights[0];
+            foundFlightID = flightSelected.FlightID;
+            loadFlights();
         }
     }
-    void ReserveFlight()
+    void ReserveToFile()
     {
         try
         {
-            Flights flights = flightsManager.searchFlights(foundID);
-            if (string.IsNullOrEmpty(foundFlightID))
+            Flights flights = flightsManager.searchFlights(flightID);
+            if(string.IsNullOrEmpty(foundFlightID))
             {
-                throw new Exception("You must select a flight first");
+                throw new Exception("A flight number must be selected");
             }
-            if (string.IsNullOrEmpty(flights.ToString()))
+            if(string.IsNullOrEmpty(flights.ToString()))
             {
-                throw new Exception("No flight with that number found");
+                throw new Exception("No flights with matching number");
             }
-            if (string.IsNullOrEmpty(clientName))
+            if(string.IsNullOrEmpty(clientName))
             {
-                throw new Exception("You must enter a name");
+                throw new Exception("Client name must not be blank");
             }
-            if (string.IsNullOrEmpty(clientCitizen))
+            if(string.IsNullOrEmpty(clientCitizen))
             {
-                throw new Exception("You must enter a citizenship");
+                throw new Exception("Client citizenship must not be blank");
             }
-            if (flights.FreeSeats <= 0)
+            if(flights.FreeSeats <= 0)
             {
-                throw new Exception("No free seats available on flight");
+                throw new Exception("No seats left on this flight");
             }
-            if (string.IsNullOrEmpty(foundTime))
+            if(string.IsNullOrEmpty(timeofFlight))
             {
-                foundTime = DateTime.Now.ToString("HH:mm");
+                timeofFlight = DateTime.Now.ToString("HH:mm");
             }
-            currentReservation = new Reservations(foundID, foundFlightName, foundDay, foundTime, float.Parse(foundCost), clientName, clientCitizen);
-            resFlightCode = currentReservation.Reservation_Code;
-            flightsManager.SeatReservation(foundID);
+            reservationSelected = new Reservations(flightID, flightName, dayofWeek, timeofFlight, float.Parse(costofFlight), clientName, clientCitizen);
+            reservation_code = reservationSelected.Reservation_Code;
+            reservationsManager.SaveToFile(reservationSelected);
+            flightsManager.SeatReservation(flightID);
             errorFix();
         }
         catch (Exception ex)
@@ -179,12 +182,13 @@
     {
         errMess = null;
     }
-    void loadFlight()
+    void loadFlights()
     {
-        foundID = foundFlightID;
-        foundFlightName = chosenFlight.FlightName;
-        foundDay = chosenFlight.DayofWeek;
-        foundTime = chosenFlight.TimeofFlight;
-        foundCost = chosenFlight.FlightCost.ToString();
+        flightID = flightSelected.FlightID;
+        flightName = flightSelected.FlightName;
+        dayofWeek = flightSelected.DayofWeek;
+        timeofFlight = flightSelected.TimeofFlight;
+        costofFlight = flightSelected.FlightCost.ToString();
     }
+
 }
