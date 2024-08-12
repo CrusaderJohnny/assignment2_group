@@ -3,6 +3,9 @@
 @using Microsoft.Maui.Controls
 @inject FlightsManager flightsManager
 @inject ReservationsManager reservationsManager
+<div class="header">
+    <h1>Flight Reservations</h1>
+</div>
 <div id="findReservations">
     <label>
         Reservation Code:
@@ -19,9 +22,10 @@
         <InputText @bind-Value="findClientName"/>
     </lable>
 
+</div>
+<div id="searchReserv">
     <button class="btn btn-primary" @onclick="SearchReservations">Search Reservations</button>
 </div>
-
 <div class="header">
     <h1>Flight Reservations</h1>
 </div>
@@ -40,7 +44,7 @@ else
     activeReservation = false;
     <p>Flight reservation is currently not active</p>
 }
-<div>
+<div id="reservWheel">
     <select @bind=foundResNumber>
         @foreach(Reservations reservations in savedReservations)
         {
